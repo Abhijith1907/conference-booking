@@ -206,7 +206,7 @@ def get_booking_status(booking_id):
         status_code = status.HTTP_200_OK
 
     except BookingDoesNotExist as e:
-        resp = {"error": {"code": 404, "message": "Booking does not exists"}}
+        resp = {"error": {"code": 404, "message": "Booking does not exist"}}
         status_code = status.HTTP_404_NOT_FOUND
 
     except TimeToConfirmBookingExceeded as e:
