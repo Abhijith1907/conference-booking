@@ -122,10 +122,13 @@ def book_conference(conference_name: str, booking_payload: ConferenceBookingPayl
 
             waitlist_registry_exists = waitlist_registry.get_record(conference_name)
             if waitlist_registry_exists == False:
-                waitlist_record = {conference_name: [booking_id]}
-                waitlist_registry.create_record(waitlist_record, conference_name)
+                waitlist_record = {
+                    "conference": conference_name,
+                    "booking_queue": [booking_id],
+                }
+                waitlist_registry.create_record(waitlist_record, "conference")
             else:
-                waitlist_registry_exists.append(booking_id)
+                waitlist_registry_exists["booking_queue"].append(booking_id)
                 waitlist_registry.update_record(
                     conference_name, waitlist_registry_exists
                 )
@@ -196,7 +199,7 @@ def get_booking_status(booking_id):
 
             elif can_book == False:
                 waitlist = waitlist_registry.get_record(booking_exists["conference"])
-                queue_num = waitlist[booking_exists["conference"]].index(booking_id)
+                queue_num = waitlist["booking_queue"].index(booking_id)
                 booking_exists["queue_number"] = queue_num
 
         resp = {"data": booking_exists}
@@ -231,17 +234,20 @@ def cancel_booking(booking_id: str):
             conference_registry.update_record(conference_name, conference)
 
             waitlist = waitlist_registry.get_record(conference_name)
-            first_booking = waitlist[conference_name].pop(0)
+            first_booking = waitlist["booking_queue"].pop(0)
             time_now = datetime.now()
             current_time = time_now.strftime("%Y-%m-%d %H:%M:%S")
-            waitlist_confirmation_record = {first_booking: current_time}
+            waitlist_confirmation_record = {
+                "booking_id": booking_id,
+                "time": current_time,
+            }
             waitlist_confirmation_registry.create_record(
-                waitlist_confirmation_record, booking_id
+                waitlist_confirmation_record, "booking_id"
             )
 
         elif booking_exists["status"] == BookingStatus.wailist:
             waitlist = waitlist_registry.get_record(conference_name)
-            waitlist[conference_name].remove(booking_id)
+            waitlist["booking_queue"].remove(booking_id)
 
         resp = {"message": f"cancelled booking {booking_id}"}
         status_code = status.HTTP_202_ACCEPTED

@@ -129,6 +129,8 @@ class LocalDB:
             return False
 
     def create_record(self, data: dict, p_key: str):
+        print(data)
+        print(p_key)
         self.database[data[p_key]] = data
         return data
 
